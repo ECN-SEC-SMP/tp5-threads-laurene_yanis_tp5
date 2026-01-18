@@ -15,7 +15,12 @@ class Controleur {
   bool trainPresent = false;
   int numPrecedent = 0;
   int nbtrainEngage = 0;
-  bool autorisation = false;
+  bool autorisation1 = false;
+  bool autorisation2 = false;
+  int sensA = 0;
+  int sensB = 0;
+  int nbtchoutchouA = 0;
+  int nbtchoutchouB = 0;
 
   public:
     Controleur (int valeur_initiale) : 
@@ -23,27 +28,41 @@ class Controleur {
     {
     }
     
-    bool controlinEnB(int numero) { 
-        if(trainPresent == false || (trainPresent == true && numPrecedent<0 && autorisation == true)) {
-          trainPresent = true;
-          nbtrainEngage++;
-          if(nbtrainEngage == 2){
-            autorisation = false;
-          }
-          numPrecedent = numero;
-          return true;
-        } 
-        else {
-          return false;
+    bool controlinEnB(int numero) {
+      if(sensB < 2 && nbtchoutchouB < 3){
+        autorisation2 = true;
+      }
+      if(trainPresent == false || (trainPresent == true && numPrecedent<0 && autorisation1 == true && autorisation2 == true)) {
+        trainPresent = true;
+        nbtrainEngage++;
+        sensB++;
+        nbtchoutchouB++;
+        sensA=0;
+        nbtchoutchouA=0;
+        if(nbtrainEngage == 2){
+          autorisation1 = false;
         }
+        numPrecedent = numero;
+        return true;
+      } 
+      else {
+        return false;
+      }
     }  
 
     bool controlinEnA(int numero) {
-      if(trainPresent == false || (trainPresent == true && numPrecedent>0 && autorisation == true)) {
+      if(sensA < 2 && nbtchoutchouA < 3){
+        autorisation2 = true;
+      }
+      if(trainPresent == false || (trainPresent == true && numPrecedent>0 && autorisation1 == true && autorisation2 == true)) {
         nbtrainEngage++;
+        sensA++;
+        nbtchoutchouA++;
+        sensB=0;
+        nbtchoutchouB=0;
         trainPresent = true;
         if(nbtrainEngage == 2){
-          autorisation = false;
+          autorisation1 = false;
         }
         numPrecedent = numero;
         return true;
@@ -57,7 +76,7 @@ class Controleur {
       nbtrainEngage--;
       if(nbtrainEngage == 0){
         trainPresent = false; // pas de train
-        autorisation = true;
+        autorisation1 = true;
       }
       return trainPresent;
     }
@@ -66,7 +85,7 @@ class Controleur {
       nbtrainEngage--;
       if(nbtrainEngage == 0){
         trainPresent = false; // pas de train
-        autorisation = true;
+        autorisation1 = true;
       } 
       return trainPresent;
     }
