@@ -44,6 +44,8 @@ class Controleur {
   int sensB = 0; /** Nombre de trains consécutifs passés en sens B */
   int nbtchoutchouA = 0; /** Nombre total de trains autorisés en sens A */
   int nbtchoutchouB = 0; /** Nombre total de trains autorisés en sens B */
+  int filedAttenteA = 0; 
+  int filedAttenteB = 0;
 
   public:
   /**
@@ -69,10 +71,11 @@ class Controleur {
      * @return true si l'accès est autorisé, false sinon
      */
     bool controlinEnB(int numero) {
-      if(sensB < 2 && nbtchoutchouB < 3){
+      if(sensB < 2 && (nbtchoutchouB < 3 && filedAttenteA==0)){
         autorisation2 = true;
       }
       if(trainPresent == false || (trainPresent == true && numPrecedent<0 && autorisation1 == true && autorisation2 == true)) {
+        filedAttenteB--;
         trainPresent = true;
         nbtrainEngage++;
         sensB++;
@@ -86,6 +89,7 @@ class Controleur {
         return true;
       } 
       else {
+        filedAttenteB++;
         return false;
       }
     }  
@@ -100,10 +104,11 @@ class Controleur {
      * @return true si l'accès est autorisé, false sinon
      */
     bool controlinEnA(int numero) {
-      if(sensA < 2 && nbtchoutchouA < 3){
+      if(sensA < 2 && (nbtchoutchouA < 3 && filedAttenteB==0)){
         autorisation2 = true;
       }
       if(trainPresent == false || (trainPresent == true && numPrecedent>0 && autorisation1 == true && autorisation2 == true)) {
+        filedAttenteA --;
         nbtrainEngage++;
         sensA++;
         nbtchoutchouA++;
@@ -117,6 +122,7 @@ class Controleur {
         return true;
       } 
       else {
+        filedAttenteA++;
         return false;
       }
     }  
