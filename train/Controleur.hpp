@@ -12,7 +12,9 @@ using namespace std;
 class Controleur {
   private:
   mutex acces;
-  bool trainPresent;
+  bool trainPresent = false;
+  int numPrecedent = 0;
+  int nbtrainEngage = 0;
 
   public:
     Controleur (int valeur_initiale) : 
@@ -21,8 +23,10 @@ class Controleur {
     }
     
     bool controlinEnB(int numero) { 
-        if(trainPresent == false) {
+        if(trainPresent == false || (trainPresent == true && numPrecedent<0)) {
           trainPresent = true;
+          nbtrainEngage++;
+          numPrecedent = numero;
           return true;
         } 
         else {
@@ -30,23 +34,31 @@ class Controleur {
         }
     }  
 
-    bool controlinEnA(int numero) { 
-        if(trainPresent == false) {
-          trainPresent = true;
-          return true;
-        } 
-        else {
-          return false;
-        }
+    bool controlinEnA(int numero) {
+      if(trainPresent == false || (trainPresent == true && numPrecedent>0)) {
+        trainPresent = true;
+        nbtrainEngage++;
+        numPrecedent = numero;
+        return true;
+      } 
+      else {
+        return false;
+      }
     }  
 
     bool controloutEnB(int numero){
-      trainPresent = false; // pas de train
+      nbtrainEngage--;
+      if(nbtrainEngage == 0){
+        trainPresent = false; // pas de train
+      }
       return trainPresent;
     }
 
     bool controloutEnA(int numero){ 
-      trainPresent = false; // pas de train
+      nbtrainEngage--;
+      if(nbtrainEngage == 0){
+        trainPresent = false; // pas de train
+      }
       return trainPresent;
     }
 
