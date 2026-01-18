@@ -71,9 +71,16 @@ class Controleur {
      * @return true si l'accès est autorisé, false sinon
      */
     bool controlinEnB(int numero) {
+      // Si le quota de passages consécutifs en sens B n'est pas dépassé
+      // ET qu'il n'y a pas de train en attente en sens A-B,
+      // alors on autorise le passage en sens B-A
       if(sensB < 2 && (nbtchoutchouB < 3 && filedAttenteA==0)){
         autorisation2 = true;
       }
+      // Cas où la section est libre : autorisation immédiate
+      // OU
+      // cas où un train est déjà présent mais le sens est cohérent
+      // avec le précédent et les autorisations sont valides
       if(trainPresent == false || (trainPresent == true && numPrecedent<0 && autorisation1 == true && autorisation2 == true)) {
         filedAttenteB--;
         trainPresent = true;
@@ -82,6 +89,7 @@ class Controleur {
         nbtchoutchouB++;
         sensA=0;
         nbtchoutchouA=0;
+        // Limitation du nombre de trains simultanés
         if(nbtrainEngage == 2){
           autorisation1 = false;
         }
@@ -89,6 +97,7 @@ class Controleur {
         return true;
       } 
       else {
+        // Cas refusé : le train reste en attente
         filedAttenteB++;
         return false;
       }
@@ -104,9 +113,19 @@ class Controleur {
      * @return true si l'accès est autorisé, false sinon
      */
     bool controlinEnA(int numero) {
+      // Même logique que controlinEnB, appliquée au sens A
+      // Les règles d'équité et de limitation sont symétriques
+
+      // Si le quota de passages consécutifs en sens B n'est pas dépassé
+      // ET qu'il n'y a pas de train en attente en sens B-A,
+      // alors on autorise le passage en sens A-B
       if(sensA < 2 && (nbtchoutchouA < 3 && filedAttenteB==0)){
         autorisation2 = true;
       }
+      // Cas où la section est libre : autorisation immédiate
+      // OU
+      // cas où un train est déjà présent mais le sens est cohérent
+      // avec le précédent et les autorisations sont valides
       if(trainPresent == false || (trainPresent == true && numPrecedent>0 && autorisation1 == true && autorisation2 == true)) {
         filedAttenteA --;
         nbtrainEngage++;
@@ -115,6 +134,7 @@ class Controleur {
         sensB=0;
         nbtchoutchouB=0;
         trainPresent = true;
+        // Limitation du nombre de trains simultanés
         if(nbtrainEngage == 2){
           autorisation1 = false;
         }
@@ -122,6 +142,7 @@ class Controleur {
         return true;
       } 
       else {
+        // Cas refusé : le train reste en attente
         filedAttenteA++;
         return false;
       }
@@ -138,9 +159,11 @@ class Controleur {
      */
     bool controloutEnB(int numero){
       nbtrainEngage--;
+      // Si plus aucun train n'est engagé,
+      // la section est libérée et les autorisations sont réinitialisées
       if(nbtrainEngage == 0){
         trainPresent = false; // pas de train
-        autorisation1 = true;
+        autorisation1 = true; // Réautorise l'accès pour les trains suivants
       }
       return trainPresent;
     }
