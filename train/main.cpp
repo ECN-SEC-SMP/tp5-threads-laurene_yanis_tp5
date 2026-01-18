@@ -1,3 +1,12 @@
+/**
+ * @file main.cpp
+ * @brief Simulation du passage de trains avec synchronisation
+ *
+ * Ce programme simule plusieurs trains représentés par des threads.
+ * L'accès à une section critique est contrôlé par un objet Controleur
+ * afin d'éviter les accès concurrents.
+ */
+
 #include <iostream>           
 #include <thread>             
 #include <mutex>              
