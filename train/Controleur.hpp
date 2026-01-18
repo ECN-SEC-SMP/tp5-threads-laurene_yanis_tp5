@@ -15,6 +15,7 @@ class Controleur {
   bool trainPresent = false;
   int numPrecedent = 0;
   int nbtrainEngage = 0;
+  bool autorisation = false;
 
   public:
     Controleur (int valeur_initiale) : 
@@ -23,9 +24,12 @@ class Controleur {
     }
     
     bool controlinEnB(int numero) { 
-        if(trainPresent == false || (trainPresent == true && numPrecedent<0)) {
+        if(trainPresent == false || (trainPresent == true && numPrecedent<0 && autorisation == true)) {
           trainPresent = true;
           nbtrainEngage++;
+          if(nbtrainEngage == 2){
+            autorisation = false;
+          }
           numPrecedent = numero;
           return true;
         } 
@@ -35,9 +39,12 @@ class Controleur {
     }  
 
     bool controlinEnA(int numero) {
-      if(trainPresent == false || (trainPresent == true && numPrecedent>0)) {
-        trainPresent = true;
+      if(trainPresent == false || (trainPresent == true && numPrecedent>0 && autorisation == true)) {
         nbtrainEngage++;
+        trainPresent = true;
+        if(nbtrainEngage == 2){
+          autorisation = false;
+        }
         numPrecedent = numero;
         return true;
       } 
@@ -50,6 +57,7 @@ class Controleur {
       nbtrainEngage--;
       if(nbtrainEngage == 0){
         trainPresent = false; // pas de train
+        autorisation = true;
       }
       return trainPresent;
     }
@@ -58,7 +66,8 @@ class Controleur {
       nbtrainEngage--;
       if(nbtrainEngage == 0){
         trainPresent = false; // pas de train
-      }
+        autorisation = true;
+      } 
       return trainPresent;
     }
 
