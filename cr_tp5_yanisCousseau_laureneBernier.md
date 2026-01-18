@@ -6,10 +6,6 @@
 
 ### Code 
 ```cpp
-#include <iostream>           
-#include <thread>             
-#include "Semaphore.hpp"
-
 int ressourcePartagee;
 Semaphore sem = Semaphore(5);
 Semaphore muex = Semaphore(1);
@@ -46,29 +42,16 @@ void ecrivain(int numEcrivain){
     ecrit.V();
   }
 }
-
-int main() {
-  const int nbr = 8;
-  std::thread r[nbr];
-  std::thread w[nbr];
-  int ressourcePartagee = 0;
-
-  for (int i = 1; i < nbr; i++){
-    r[i] = std::thread(lecteur, -i);
-    w[i] = std::thread(ecrivain, i);
-  }
-// Join des threads 
-  for (int i = 1; i < nbr; i++) {
-  r[i].join(); 
-  w[i].join();   
-  }
-  return 0;
-}
 ```
 
-### Essai
+### Test
 
 ![alt text](image-3.png)
+
+
+
+
+
 
 # Partie train
 
@@ -76,26 +59,74 @@ int main() {
 
 ### Code 
 ```cpp
+class Controleur {
+  private:
+  mutex acces;
+  bool trainPresent = false;
+  int numPrecedent = 0;
+  int nbtrainEngage = 0;
+
+  public:
+    Controleur (int valeur_initiale) : 
+    val(valeur_initiale)
+    {
+    }
+    
+    bool controlinEnB(int numero) { 
+        if(trainPresent == false || (trainPresent == true && numPrecedent<0)) {
+          trainPresent = true;
+          nbtrainEngage++;
+          
+          numPrecedent = numero;
+          return true;
+        } 
+        else {
+          return false;
+        }
+    }  
+
+    bool controlinEnA(int numero) {
+      if(trainPresent == false || (trainPresent == true && numPrecedent>0)) {
+        nbtrainEngage++;
+        trainPresent = true;
+        
+        numPrecedent = numero;
+        return true;
+      } 
+      else {
+        return false;
+      }
+    }  
+
+    bool controloutEnB(int numero){
+      nbtrainEngage--;
+      if(nbtrainEngage == 0){
+        trainPresent = false; // pas de train
+      }
+      return trainPresent;
+    }
+
+    bool controloutEnA(int numero){ 
+      nbtrainEngage--;
+      if(nbtrainEngage == 0){
+        trainPresent = false; // pas de train
+      } 
+      return trainPresent;
+    }
+
+  private:
+    int val;
+};
 ```
 
-### Essai
+### Test
 
+![alt text](image-5.png)
 
 ## Q 2.2
 
 ### Code
 ```cpp
-#ifndef CONTROLEUR_HPP
-#define CONTROLEUR_HPP
-
-#include <thread>             
-#include <iostream>
-#include <mutex>
-#include <condition_variable>
-
-using namespace std; 
-
-
 class Controleur {
   private:
   mutex acces;
@@ -161,41 +192,35 @@ class Controleur {
   private:
     int val;
 };
-
-#endif //CONTROLEUR_HPP
-
 ```
 
-### Essai
+### Test
 ![alt text](image-1.png)
 
 
 ## Q 2.3
+
 ### Code
+
 ```cpp
-#ifndef CONTROLEUR_HPP
-#define CONTROLEUR_HPP
-
-#include <thread>             
-#include <iostream>
-#include <mutex>
-#include <condition_variable>
-
-using namespace std; 
-
-
 class Controleur {
   private:
-  mutex acces;
-  bool trainPresent = false;
+  mutex acces; /** Mutex protégeant l'état interne du contrôleur */
+  bool trainPresent = false; /** Indique si au moins un train est présent dans la section critique */
+  /**
+     * Numéro du dernier train autorisé.
+     * Le signe du numéro est utilisé pour déterminer le sens précédent.
+     */
   int numPrecedent = 0;
-  int nbtrainEngage = 0;
-  bool autorisation1 = false;
-  bool autorisation2 = false;
-  int sensA = 0;
-  int sensB = 0;
-  int nbtchoutchouA = 0;
-  int nbtchoutchouB = 0;
+  int nbtrainEngage = 0; /** Nombre de trains actuellement engagés dans la section critique */
+  bool autorisation1 = false; /** Autorisation principale de passage */
+  bool autorisation2 = false; /** Autorisation secondaire liée aux conditions de sens */
+  int sensA = 0; /** Nombre de trains consécutifs passés en sens A */
+  int sensB = 0; /** Nombre de trains consécutifs passés en sens B */
+  int nbtchoutchouA = 0; /** Nombre total de trains autorisés en sens A */
+  int nbtchoutchouB = 0; /** Nombre total de trains autorisés en sens B */
+  int filedAttenteA = 0; 
+  int filedAttenteB = 0;
 
   public:
     Controleur (int valeur_initiale) : 
@@ -203,17 +228,27 @@ class Controleur {
     {
     }
     
+
     bool controlinEnB(int numero) {
-      if(sensB < 2 && nbtchoutchouB < 3){
+      // Si le quota de passages consécutifs en sens B n'est pas dépassé
+      // ET qu'il n'y a pas de train en attente en sens A-B,
+      // alors on autorise le passage en sens B-A
+      if(sensB < 2 && (nbtchoutchouB < 3 && filedAttenteA==0)){
         autorisation2 = true;
       }
+      // Cas où la section est libre : autorisation immédiate
+      // OU
+      // cas où un train est déjà présent mais le sens est cohérent
+      // avec le précédent et les autorisations sont valides
       if(trainPresent == false || (trainPresent == true && numPrecedent<0 && autorisation1 == true && autorisation2 == true)) {
+        filedAttenteB--;
         trainPresent = true;
         nbtrainEngage++;
         sensB++;
         nbtchoutchouB++;
         sensA=0;
         nbtchoutchouA=0;
+        // Limitation du nombre de trains simultanés
         if(nbtrainEngage == 2){
           autorisation1 = false;
         }
@@ -221,21 +256,36 @@ class Controleur {
         return true;
       } 
       else {
+        // Cas refusé : le train reste en attente
+        filedAttenteB++;
         return false;
       }
     }  
 
+
     bool controlinEnA(int numero) {
-      if(sensA < 2 && nbtchoutchouA < 3){
+      // Même logique que controlinEnB, appliquée au sens A
+      // Les règles d'équité et de limitation sont symétriques
+
+      // Si le quota de passages consécutifs en sens B n'est pas dépassé
+      // ET qu'il n'y a pas de train en attente en sens B-A,
+      // alors on autorise le passage en sens A-B
+      if(sensA < 2 && (nbtchoutchouA < 3 && filedAttenteB==0)){
         autorisation2 = true;
       }
+      // Cas où la section est libre : autorisation immédiate
+      // OU
+      // cas où un train est déjà présent mais le sens est cohérent
+      // avec le précédent et les autorisations sont valides
       if(trainPresent == false || (trainPresent == true && numPrecedent>0 && autorisation1 == true && autorisation2 == true)) {
+        filedAttenteA --;
         nbtrainEngage++;
         sensA++;
         nbtchoutchouA++;
         sensB=0;
         nbtchoutchouB=0;
         trainPresent = true;
+        // Limitation du nombre de trains simultanés
         if(nbtrainEngage == 2){
           autorisation1 = false;
         }
@@ -243,18 +293,24 @@ class Controleur {
         return true;
       } 
       else {
+        // Cas refusé : le train reste en attente
+        filedAttenteA++;
         return false;
       }
     }  
 
+
     bool controloutEnB(int numero){
       nbtrainEngage--;
+      // Si plus aucun train n'est engagé,
+      // la section est libérée et les autorisations sont réinitialisées
       if(nbtrainEngage == 0){
         trainPresent = false; // pas de train
-        autorisation1 = true;
+        autorisation1 = true; // Réautorise l'accès pour les trains suivants
       }
       return trainPresent;
     }
+
 
     bool controloutEnA(int numero){ 
       nbtrainEngage--;
@@ -268,11 +324,9 @@ class Controleur {
   private:
     int val;
 };
-
-#endif //CONTROLEUR_HPP
-
 ```
 
-### Essai
+### Test
+
 ![alt text](image-2.png)
 
