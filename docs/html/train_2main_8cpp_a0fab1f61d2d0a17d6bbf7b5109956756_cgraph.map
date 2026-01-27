@@ -1,0 +1,7 @@
+<map id="circuleBA" name="circuleBA">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,88,56"/>
+<area shape="rect" id="Node000002" href="$classControleur.html#a5283290ed2ea4e2ab57c53a3d8ab9c05" title=" " alt="" coords="141,5,321,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,35,127,30,128,35,89,40"/>
+<area shape="rect" id="Node000003" href="$classControleur.html#a92c3fc37a5e18800dc5c1b56e1ee80a2" title=" " alt="" coords="136,55,325,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="89,46,123,51,122,56,88,51"/>
+</map>

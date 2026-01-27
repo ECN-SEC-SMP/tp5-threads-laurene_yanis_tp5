@@ -1,0 +1,13 @@
+<map id="main" name="main">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,60,56"/>
+<area shape="rect" id="Node000002" href="$ecrivain-lecteur_2main_8cpp.html#af798f0fc19d01f6c128d6b6be816f84d" title=" " alt="" coords="108,5,183,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="59,35,94,27,95,32,61,40"/>
+<area shape="rect" id="Node000005" href="$ecrivain-lecteur_2main_8cpp.html#a7327cdafce957df5ef1e4be89693584c" title=" " alt="" coords="112,55,179,80"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="61,46,99,55,98,60,60,52"/>
+<area shape="rect" id="Node000003" href="$classSemaphore.html#a4fee22da0205e3c704b08beaa17e0e7a" title=" " alt="" coords="231,5,343,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="183,15,218,15,218,21,183,21"/>
+<area shape="rect" id="Node000004" href="$classSemaphore.html#a3e42125b95660ef696d0d0069b804343" title=" " alt="" coords="231,55,344,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="183,28,238,48,236,53,182,33"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="178,53,236,33,238,38,180,58"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="179,65,217,65,217,70,179,70"/>
+</map>
